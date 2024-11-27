@@ -1,16 +1,28 @@
+version: "3.9"
 services:
-  app:
+  backend:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: socketio_app
+    container_name: websocket_backend
     ports:
-      - "80:80"    # HTTP traffic
-      - "443:443"  # HTTPS traffic
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro    # NGINX config
-      - ./nginx/certificate.crt:/etc/ssl/certs/certificate.crt:ro # SSL cert
-      - ./nginx/private.key:/etc/ssl/private/private.key:ro       # SSL key
+      - "3000:3000"
     environment:
-      NODE_ENV: production  # Optional: set Node.js environment
+      NODE_ENV: production
+    restart: always
+
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
+    container_name: websocket_nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/certificate.crt:/etc/ssl/certs/certificate.crt:ro
+      - ./nginx/private.key:/etc/ssl/private/private.key:ro
+    depends_on:
+      - backend
     restart: always
